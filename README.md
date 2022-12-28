@@ -1,4 +1,4 @@
-#birthday-sort
+# birthday-sort
 
 1. https://www.python.org/downloads/ 해당사이트 접속 후 Download Python 통해 설치
 2. birthday.txt 파일에 모두 지우고 생일자 명단 복붙
