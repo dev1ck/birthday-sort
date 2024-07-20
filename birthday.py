@@ -1,35 +1,33 @@
 
 import sys
+import os
 from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QPlainTextEdit
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
-
+from PySide6.QtGui import QIcon
+from birthday_ui import Ui_widget
 class MainWindow(QMainWindow):
     def __init__(self):
-        super(MainWindow, self).__init__()
-        self.__load_ui()
-        self.__initialize_ui_components()
+        super().__init__()
+        self.ui = Ui_widget()
+        self.ui.setupUi(self)
+        self.__initUI()
+
+    def __initUI(self):
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, 'icon.ico')
+        else:
+            icon_path = 'icon.ico'
+        
+        self.setWindowIcon(QIcon(icon_path))
         self.resize(662, 482)
         self.setWindowTitle("생일자 정렬기")
-        #self.setWindowIcon(QIcon("path/to/your/icon.png"))
-        self.pushButton.clicked.connect(self.__push_button_clicked)
-
-    def __load_ui(self):
-        loader = QUiLoader()
-        ui_file = QFile("birthday.ui")
-        ui_file.open(QFile.ReadOnly)
-        self.ui = loader.load(ui_file, self)
-        ui_file.close()
-
-    def __initialize_ui_components(self):
-        self.pushButton = self.ui.findChild(QPushButton, 'pushButton')
-        self.inputPlainText = self.ui.findChild(QPlainTextEdit, 'inputPlainText')
-        self.outputPlainText = self.ui.findChild(QPlainTextEdit, 'outputPlainText')
+        self.ui.pushButton.clicked.connect(self.__push_button_clicked)
 
     def __push_button_clicked(self):
-        birthday_sorter = BirthdaySorter(self.inputPlainText.toPlainText())
+        birthday_sorter = BirthdaySorter(self.ui.inputPlainText.toPlainText())
         string_list = birthday_sorter.get_string_list()
-        self.outputPlainText.setPlainText("\n".join(string_list))
+        self.ui.outputPlainText.setPlainText("\n".join(string_list))
         
 class BirthdaySorter:
     def __init__(self, str_name):
