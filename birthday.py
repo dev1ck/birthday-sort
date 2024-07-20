@@ -1,75 +1,70 @@
+
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QPlainTextEdit
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import QFile, QIODevice
+from PySide6.QtCore import QFile
 
-
-class BirthdayApp(QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
-        super().__init__()
-        # .ui 파일 로드
-        self.ui = self.load_ui()
-        self.setWindowTitle("생일자 정렬")
-        self.setCentralWidget(self.ui)
+        super(MainWindow, self).__init__()
+        self.__load_ui()
+        self.__initialize_ui_components()
+        self.resize(662, 482)
+        self.setWindowTitle("생일자 정렬기")
+        #self.setWindowIcon(QIcon("path/to/your/icon.png"))
+        self.pushButton.clicked.connect(self.__push_button_clicked)
 
-        # 버튼 클릭 이벤트 연결
-        self.ui.pushButton.clicked.connect(self.on_button_clicked)
-
-    def load_ui(self):
+    def __load_ui(self):
         loader = QUiLoader()
-        file = QFile("birthday.ui")
-        file.open(QIODevice.ReadOnly)
-        ui = loader.load(file)
-        file.close()
-        return ui
+        ui_file = QFile("birthday.ui")
+        ui_file.open(QFile.ReadOnly)
+        self.ui = loader.load(ui_file, self)
+        ui_file.close()
 
-    def on_button_clicked(self):
-        # 버튼 클릭 시 실행할 로직
-        pass
+    def __initialize_ui_components(self):
+        self.pushButton = self.ui.findChild(QPushButton, 'pushButton')
+        self.inputPlainText = self.ui.findChild(QPlainTextEdit, 'inputPlainText')
+        self.outputPlainText = self.ui.findChild(QPlainTextEdit, 'outputPlainText')
 
-    def run(self):
-        self.ui.show()
+    def __push_button_clicked(self):
+        birthday_sorter = BirthdaySorter(self.inputPlainText.toPlainText())
+        string_list = birthday_sorter.get_string_list()
+        self.outputPlainText.setPlainText("\n".join(string_list))
         
-def split_list(a_list):
-    half = len(a_list)//2
-    return a_list[:half], a_list[half:]
+class BirthdaySorter:
+    def __init__(self, str_name):
+        self.__list_name = list(str_name.split())
+    
+    def __sort(self):
+        self.__list_name.sort()
+        
+    def __split_list(self):
+        n = len(self.__list_name)
+        quarter = n // 4
+        remainder = n % 4
 
-def main():
-    app = QApplication(sys.argv)
-    birthday_app = BirthdayApp()
-    birthday_app.run()
-    sys.exit(app.exec())
+        parts = []
+        start = 0
+        for i in range(4):
+            end = start + quarter + (1 if i < remainder else 0)
+            parts.append(self.__list_name[start:end])
+            start = end
+        return parts
+        
+    def get_string_list(self):
+        self.__sort()
+        list_A, list_B, list_C, list_D = self.__split_list()
+        return [
+            ' '.join(list_A),
+            ' '.join(list_B),
+            "",
+            ' '.join(list_C),
+            ' '.join(list_D)
+        ]
+        
 
 if __name__ == "__main__":
-    main()
-
-
-# with open('birthday.txt', 'r', encoding='UTF8') as f:
-#         list_name =  list(f.read().split())
-#         list_name.sort()
-#         list_A, list_B = split_list(list_name)
-        
-#     with open('birthday.txt', 'w', encoding='UTF8') as f:
-#         text = ''
-#         cnt = 0
-    
-#         for name in list_A:
-#             text += name + ' '
-#             cnt += 1
-#             if cnt==len(list_A)//2:
-#                 text = text.rstrip()
-#                 text += '\n'
-        
-#         text = text.rstrip()
-#         text += '\n\n'
-#         cnt = 0
-        
-#         for name in list_B:
-#             text += name + ' '
-#             cnt += 1
-#             if cnt==len(list_B)//2:
-#                 text = text.rstrip()
-#                 text += '\n'
-            
-#         text = text.rstrip()
-#         f.write(text)
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
