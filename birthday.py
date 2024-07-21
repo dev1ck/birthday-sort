@@ -14,11 +14,7 @@ class MainWindow(QMainWindow):
         self.__initUI()
 
     def __initUI(self):
-        if getattr(sys, 'frozen', False):
-            icon_path = os.path.join(sys._MEIPASS, 'icon.ico')
-        else:
-            icon_path = 'icon.ico'
-        
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(sys.executable)), "resources", "icon.ico")
         self.setWindowIcon(QIcon(icon_path))
         self.resize(662, 482)
         self.setWindowTitle("생일자 정렬기")
@@ -37,17 +33,17 @@ class BirthdaySorter:
         self.__list_name.sort()
         
     def __split_list(self):
-        n = len(self.__list_name)
-        quarter = n // 4
-        remainder = n % 4
+        def split_half(lst):
+            mid = len(lst) // 2
+            return lst[:mid], lst[mid:]
 
-        parts = []
-        start = 0
-        for i in range(4):
-            end = start + quarter + (1 if i < remainder else 0)
-            parts.append(self.__list_name[start:end])
-            start = end
-        return parts
+        half = len(self.__list_name) // 2
+        first_half, second_half = split_half(self.__list_name)
+        first_half_1, first_half_2 = split_half(first_half)
+        second_half_1, second_half_2 = split_half(second_half)
+
+        return first_half_1, first_half_2, second_half_1, second_half_2
+
         
     def get_string_list(self):
         self.__sort()
